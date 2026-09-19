@@ -2,6 +2,15 @@
  * tdkit — browser TypeScript library
  */
 
+export { TdLog } from "./TdLog.js";
+export type {
+  TdLogLevel,
+  TdLogPage,
+  TdLogQuery,
+  TdLogRecord,
+} from "./TdLog.js";
+export { TdLogConfig } from "./TdLogConfig.js";
+
 /** Create a DOM element with optional properties. */
 export function createElement<K extends keyof HTMLElementTagNameMap>(
   tag: K,
