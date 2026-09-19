@@ -10,3 +10,4 @@ export type {
   TdLogRecord,
 } from "./TdLog.js";
 export { TdLogConfig } from "./TdLogConfig.js";
+export { TdSettingDict } from "./TdSettingDict.js";

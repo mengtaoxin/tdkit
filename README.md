@@ -1,6 +1,6 @@
 # tdkit
 
-Browser TypeScript library. Currently provides **TdLog** — structured logs persisted in IndexedDB, with retention and truncation controls.
+Browser TypeScript library. Provides **TdLog** (structured logs in IndexedDB) and **TdSettingDict** (string settings in IndexedDB).
 
 ## Install
 
@@ -31,7 +31,7 @@ npm install github:mengtaoxin/tdkit
 ## Usage
 
 ```ts
-import { TdLog, TdLogConfig } from "@mengtaoxin/tdkit";
+import { TdLog, TdLogConfig, TdSettingDict } from "@mengtaoxin/tdkit";
 
 TdLogConfig.retainCount(100);
 TdLogConfig.retainDays(30);
@@ -45,6 +45,9 @@ const page = await TdLog.query({ keyword: "request", limit: 20 });
 // page.total, page.records — newest first
 
 await TdLog.clean();
+
+await TdSettingDict.set("color", "blue");
+const color = await TdSettingDict.get("color"); // "blue"
 ```
 
 ### API
@@ -57,6 +60,8 @@ await TdLog.clean();
 | `TdLogConfig.retainCount` | Max entries kept (default `100`) |
 | `TdLogConfig.retainDays` | Max age in days (default `30`) |
 | `TdLogConfig.maxChars` | Truncate message length before save (default `65535`) |
+| `TdSettingDict.get` | Read a string setting (or `undefined` if missing) |
+| `TdSettingDict.set` | Write a string setting |
 
 Types: `TdLogLevel`, `TdLogRecord`, `TdLogQuery`, `TdLogPage`.
 
