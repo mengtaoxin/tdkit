@@ -1,8 +1,4 @@
-import {
-  setMaxChars,
-  setRetainCount,
-  setRetainDays,
-} from "./log/logConfig.js";
+import { setMaxChars, setRetainCount, setRetainDays } from './log/logConfig.js';
 
 /**
  * Runtime configuration for {@link TdLog} retention and message truncation.

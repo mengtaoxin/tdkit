@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { TdLog } from "./TdLog.js";
-import { TdLogConfig } from "./TdLogConfig.js";
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { TdLog } from './TdLog.js';
+import { TdLogConfig } from './TdLogConfig.js';
 
 async function resetPublicState(): Promise<void> {
   TdLogConfig.retainCount(100);
@@ -9,7 +9,14 @@ async function resetPublicState(): Promise<void> {
   await TdLog.clean();
 }
 
-describe("TdLogConfig", () => {
+async function logInfoInOrder(prefix: string, count: number): Promise<void> {
+  for (let i = 0; i < count; i++) {
+    // oxlint-disable-next-line no-await-in-loop -- assertions depend on insertion order
+    await TdLog.info(`${prefix}-${i}`);
+  }
+}
+
+describe('TdLogConfig', () => {
   beforeEach(async () => {
     await resetPublicState();
   });
@@ -18,24 +25,24 @@ describe("TdLogConfig", () => {
     vi.useRealTimers();
   });
 
-  it("rejects non-positive or non-integer retainCount", () => {
+  it('rejects non-positive or non-integer retainCount', () => {
     expect(() => TdLogConfig.retainCount(0)).toThrow(RangeError);
     expect(() => TdLogConfig.retainCount(1.5)).toThrow(RangeError);
     expect(() => TdLogConfig.retainCount(-1)).toThrow(RangeError);
   });
 
-  it("rejects non-positive or non-integer retainDays", () => {
+  it('rejects non-positive or non-integer retainDays', () => {
     expect(() => TdLogConfig.retainDays(0)).toThrow(RangeError);
     expect(() => TdLogConfig.retainDays(2.2)).toThrow(RangeError);
   });
 
-  it("rejects non-positive or non-integer maxChars", () => {
+  it('rejects non-positive or non-integer maxChars', () => {
     expect(() => TdLogConfig.maxChars(0)).toThrow(RangeError);
     expect(() => TdLogConfig.maxChars(3.14)).toThrow(RangeError);
   });
 });
 
-describe("TdLog", () => {
+describe('TdLog', () => {
   beforeEach(async () => {
     await resetPublicState();
   });
@@ -44,11 +51,11 @@ describe("TdLog", () => {
     vi.useRealTimers();
   });
 
-  it("stores info, warn, and error with level, message, and createdAt", async () => {
+  it('stores info, warn, and error with level, message, and createdAt', async () => {
     const before = Date.now();
-    await TdLog.info("nothing special");
-    await TdLog.warn("warn");
-    await TdLog.error("error");
+    await TdLog.info('nothing special');
+    await TdLog.warn('warn');
+    await TdLog.error('error');
     const after = Date.now();
 
     const page = await TdLog.query();
@@ -56,67 +63,63 @@ describe("TdLog", () => {
     expect(page.records).toHaveLength(3);
 
     // Newest first
-    expect(page.records[0]).toMatchObject({ level: "error", message: "error" });
-    expect(page.records[1]).toMatchObject({ level: "warn", message: "warn" });
+    expect(page.records[0]).toMatchObject({ level: 'error', message: 'error' });
+    expect(page.records[1]).toMatchObject({ level: 'warn', message: 'warn' });
     expect(page.records[2]).toMatchObject({
-      level: "info",
-      message: "nothing special",
+      level: 'info',
+      message: 'nothing special',
     });
 
     for (const record of page.records) {
-      expect(typeof record.id).toBe("number");
+      expect(typeof record.id).toBe('number');
       expect(record.createdAt).toBeGreaterThanOrEqual(before);
       expect(record.createdAt).toBeLessThanOrEqual(after);
     }
   });
 
-  it("rejects non-string messages", async () => {
-    await expect(
-      TdLog.info(123 as unknown as string),
-    ).rejects.toBeInstanceOf(TypeError);
+  it('rejects non-string messages', async () => {
+    await expect(TdLog.info(123 as unknown as string)).rejects.toBeInstanceOf(TypeError);
   });
 
-  it("truncates messages longer than maxChars", async () => {
+  it('truncates messages longer than maxChars', async () => {
     TdLogConfig.maxChars(5);
-    await TdLog.info("abcdefghij");
+    await TdLog.info('abcdefghij');
 
     const page = await TdLog.query();
-    expect(page.records[0]?.message).toBe("abcde");
+    expect(page.records[0]?.message).toBe('abcde');
   });
 
-  it("keeps only the newest retainCount entries", async () => {
+  it('keeps only the newest retainCount entries', async () => {
     TdLogConfig.retainCount(100);
 
-    for (let i = 0; i < 101; i++) {
-      await TdLog.info(`msg-${i}`);
-    }
+    await logInfoInOrder('msg', 101);
 
     const page = await TdLog.query({ pageSize: 200 });
     expect(page.total).toBe(100);
-    expect(page.records[0]?.message).toBe("msg-100");
-    expect(page.records.at(-1)?.message).toBe("msg-1");
-    expect(page.records.some((r) => r.message === "msg-0")).toBe(false);
+    expect(page.records[0]?.message).toBe('msg-100');
+    expect(page.records.at(-1)?.message).toBe('msg-1');
+    expect(page.records.some((r) => r.message === 'msg-0')).toBe(false);
   });
 
-  it("drops entries older than retainDays", async () => {
-    vi.useFakeTimers({ toFake: ["Date"] });
-    vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
+  it('drops entries older than retainDays', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
 
-    await TdLog.info("old");
+    await TdLog.info('old');
     TdLogConfig.retainDays(30);
 
-    vi.setSystemTime(new Date("2026-02-05T00:00:00.000Z"));
-    await TdLog.info("fresh");
+    vi.setSystemTime(new Date('2026-02-05T00:00:00.000Z'));
+    await TdLog.info('fresh');
 
     const page = await TdLog.query();
     expect(page.total).toBe(1);
-    expect(page.records[0]?.message).toBe("fresh");
+    expect(page.records[0]?.message).toBe('fresh');
   });
 
-  it("cleans all stored entries without changing config", async () => {
+  it('cleans all stored entries without changing config', async () => {
     TdLogConfig.retainCount(50);
-    await TdLog.info("a");
-    await TdLog.warn("b");
+    await TdLog.info('a');
+    await TdLog.warn('b');
 
     await TdLog.clean();
 
@@ -125,60 +128,51 @@ describe("TdLog", () => {
     expect(page.records).toEqual([]);
 
     // Config still applies after clean
-    for (let i = 0; i < 51; i++) {
-      await TdLog.info(`n-${i}`);
-    }
+    await logInfoInOrder('n', 51);
     const after = await TdLog.query({ pageSize: 100 });
     expect(after.total).toBe(50);
   });
 
-  it("filters by keyword case-insensitively", async () => {
-    await TdLog.info("Hello World");
-    await TdLog.warn("goodbye");
-    await TdLog.error("HELLO again");
+  it('filters by keyword case-insensitively', async () => {
+    await TdLog.info('Hello World');
+    await TdLog.warn('goodbye');
+    await TdLog.error('HELLO again');
 
-    const page = await TdLog.query({ keyword: "hello" });
+    const page = await TdLog.query({ keyword: 'hello' });
     expect(page.total).toBe(2);
-    expect(page.records.map((r) => r.message)).toEqual([
-      "HELLO again",
-      "Hello World",
-    ]);
+    expect(page.records.map((r) => r.message)).toEqual(['HELLO again', 'Hello World']);
   });
 
-  it("treats empty keyword as no filter", async () => {
-    await TdLog.info("one");
-    await TdLog.info("two");
+  it('treats empty keyword as no filter', async () => {
+    await TdLog.info('one');
+    await TdLog.info('two');
 
-    const page = await TdLog.query({ keyword: "   " });
+    const page = await TdLog.query({ keyword: '   ' });
     expect(page.total).toBe(2);
   });
 
-  it("paginates newest-first results", async () => {
-    for (let i = 0; i < 5; i++) {
-      await TdLog.info(`item-${i}`);
-    }
+  it('paginates newest-first results', async () => {
+    await logInfoInOrder('item', 5);
 
     const page1 = await TdLog.query({ page: 1, pageSize: 2 });
     expect(page1.total).toBe(5);
     expect(page1.page).toBe(1);
     expect(page1.pageSize).toBe(2);
-    expect(page1.records.map((r) => r.message)).toEqual(["item-4", "item-3"]);
+    expect(page1.records.map((r) => r.message)).toEqual(['item-4', 'item-3']);
 
     const page2 = await TdLog.query({ page: 2, pageSize: 2 });
-    expect(page2.records.map((r) => r.message)).toEqual(["item-2", "item-1"]);
+    expect(page2.records.map((r) => r.message)).toEqual(['item-2', 'item-1']);
 
     const page3 = await TdLog.query({ page: 3, pageSize: 2 });
-    expect(page3.records.map((r) => r.message)).toEqual(["item-0"]);
+    expect(page3.records.map((r) => r.message)).toEqual(['item-0']);
 
     const pageOut = await TdLog.query({ page: 10, pageSize: 2 });
     expect(pageOut.total).toBe(5);
     expect(pageOut.records).toEqual([]);
   });
 
-  it("rejects invalid query pagination", async () => {
+  it('rejects invalid query pagination', async () => {
     await expect(TdLog.query({ page: 0 })).rejects.toBeInstanceOf(RangeError);
-    await expect(TdLog.query({ pageSize: 0 })).rejects.toBeInstanceOf(
-      RangeError,
-    );
+    await expect(TdLog.query({ pageSize: 0 })).rejects.toBeInstanceOf(RangeError);
   });
 });

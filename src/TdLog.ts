@@ -6,7 +6,7 @@ import {
   type TdLogPage,
   type TdLogQuery,
   type TdLogRecord,
-} from "./log/logStore.js";
+} from './log/logStore.js';
 
 export type { TdLogLevel, TdLogPage, TdLogQuery, TdLogRecord };
 
@@ -17,15 +17,15 @@ export type { TdLogLevel, TdLogPage, TdLogQuery, TdLogRecord };
  */
 export const TdLog = {
   info(message: string): Promise<void> {
-    return append("info", message);
+    return append('info', message);
   },
 
   warn(message: string): Promise<void> {
-    return append("warn", message);
+    return append('warn', message);
   },
 
   error(message: string): Promise<void> {
-    return append("error", message);
+    return append('error', message);
   },
 
   /** Delete all stored log entries. Does not change configuration. */

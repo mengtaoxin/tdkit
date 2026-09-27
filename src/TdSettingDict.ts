@@ -1,4 +1,4 @@
-import { get as getStore, set as setStore } from "./setting/settingStore.js";
+import { get as getStore, set as setStore } from './setting/settingStore.js';
 
 /**
  * Persist string settings in IndexedDB as a key→value dictionary.

@@ -1,7 +1,7 @@
-import { Dexie, type EntityTable } from "dexie";
-import { getLogConfig } from "./logConfig.js";
+import { Dexie, type EntityTable } from 'dexie';
+import { getLogConfig } from './logConfig.js';
 
-export type TdLogLevel = "info" | "warn" | "error";
+export type TdLogLevel = 'info' | 'warn' | 'error';
 
 export interface TdLogRecord {
   id: number;
@@ -27,17 +27,17 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 20;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-const db = new Dexie("tdkit-log") as Dexie & {
-  entries: EntityTable<TdLogRecord, "id">;
+const db = new Dexie('tdkit-log') as Dexie & {
+  entries: EntityTable<TdLogRecord, 'id'>;
 };
 
 db.version(1).stores({
-  entries: "++id, createdAt",
+  entries: '++id, createdAt',
 });
 
 function assertMessage(message: unknown): asserts message is string {
-  if (typeof message !== "string") {
-    throw new TypeError("message must be a string");
+  if (typeof message !== 'string') {
+    throw new TypeError('message must be a string');
   }
 }
 
@@ -45,24 +45,20 @@ async function prune(): Promise<void> {
   const { retainCount, retainDays } = getLogConfig();
   const cutoff = Date.now() - retainDays * MS_PER_DAY;
 
-  await db.entries.where("createdAt").below(cutoff).delete();
+  await db.entries.where('createdAt').below(cutoff).delete();
 
   const overflow = (await db.entries.count()) - retainCount;
   if (overflow > 0) {
-    await db.entries.orderBy("createdAt").limit(overflow).delete();
+    await db.entries.orderBy('createdAt').limit(overflow).delete();
   }
 }
 
-export async function append(
-  level: TdLogLevel,
-  message: string,
-): Promise<void> {
+export async function append(level: TdLogLevel, message: string): Promise<void> {
   assertMessage(message);
   const { maxChars } = getLogConfig();
-  const truncated =
-    message.length > maxChars ? message.slice(0, maxChars) : message;
+  const truncated = message.length > maxChars ? message.slice(0, maxChars) : message;
 
-  await db.transaction("rw", db.entries, async () => {
+  await db.transaction('rw', db.entries, async () => {
     await db.entries.add({
       level,
       message: truncated,
@@ -81,26 +77,24 @@ export async function query(queryOptions: TdLogQuery = {}): Promise<TdLogPage> {
   const pageSize = queryOptions.pageSize ?? DEFAULT_PAGE_SIZE;
 
   if (!Number.isInteger(page) || page < 1) {
-    throw new RangeError("page must be an integer >= 1");
+    throw new RangeError('page must be an integer >= 1');
   }
   if (!Number.isInteger(pageSize) || pageSize < 1) {
-    throw new RangeError("pageSize must be an integer >= 1");
+    throw new RangeError('pageSize must be an integer >= 1');
   }
 
-  const keyword = queryOptions.keyword?.trim() ?? "";
+  const keyword = queryOptions.keyword?.trim() ?? '';
   const needle = keyword.length > 0 ? keyword.toLowerCase() : null;
 
   // Dexie collections are mutated by offset/limit, so build a fresh one per use.
   const newestFirst = () => {
-    const collection = db.entries.orderBy("createdAt").reverse();
+    const collection = db.entries.orderBy('createdAt').reverse();
     return needle === null
       ? collection
-      : collection.filter((record) =>
-          record.message.toLowerCase().includes(needle),
-        );
+      : collection.filter((record) => record.message.toLowerCase().includes(needle));
   };
 
-  return db.transaction("rw", db.entries, async () => {
+  return db.transaction('rw', db.entries, async () => {
     await prune();
 
     const total = await newestFirst().count();

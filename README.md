@@ -31,37 +31,37 @@ npm install github:mengtaoxin/tdkit
 ## Usage
 
 ```ts
-import { TdLog, TdLogConfig, TdSettingDict } from "@mengtaoxin/tdkit";
+import { TdLog, TdLogConfig, TdSettingDict } from '@mengtaoxin/tdkit';
 
 TdLogConfig.retainCount(100);
 TdLogConfig.retainDays(30);
 TdLogConfig.maxChars(65535);
 
-await TdLog.info("app started");
-await TdLog.warn("slow request");
-await TdLog.error("request failed");
+await TdLog.info('app started');
+await TdLog.warn('slow request');
+await TdLog.error('request failed');
 
-const page = await TdLog.query({ keyword: "request", page: 1, pageSize: 20 });
+const page = await TdLog.query({ keyword: 'request', page: 1, pageSize: 20 });
 // page.total, page.records — newest first
 
 await TdLog.clean();
 
-await TdSettingDict.set("color", "blue");
-const color = await TdSettingDict.get("color"); // "blue"
+await TdSettingDict.set('color', 'blue');
+const color = await TdSettingDict.get('color'); // "blue"
 ```
 
 ### API
 
-| Export | Role |
-| --- | --- |
-| `TdLog.info` / `warn` / `error` | Append a log entry |
-| `TdLog.query` | Query with optional keyword + pagination |
-| `TdLog.clean` | Delete all stored entries |
-| `TdLogConfig.retainCount` | Max entries kept (default `100`) |
-| `TdLogConfig.retainDays` | Max age in days (default `30`) |
-| `TdLogConfig.maxChars` | Truncate message length before save (default `65535`) |
-| `TdSettingDict.get` | Read a string setting (or `undefined` if missing) |
-| `TdSettingDict.set` | Write a string setting |
+| Export                          | Role                                                  |
+| ------------------------------- | ----------------------------------------------------- |
+| `TdLog.info` / `warn` / `error` | Append a log entry                                    |
+| `TdLog.query`                   | Query with optional keyword + pagination              |
+| `TdLog.clean`                   | Delete all stored entries                             |
+| `TdLogConfig.retainCount`       | Max entries kept (default `100`)                      |
+| `TdLogConfig.retainDays`        | Max age in days (default `30`)                        |
+| `TdLogConfig.maxChars`          | Truncate message length before save (default `65535`) |
+| `TdSettingDict.get`             | Read a string setting (or `undefined` if missing)     |
+| `TdSettingDict.set`             | Write a string setting                                |
 
 Types: `TdLogLevel`, `TdLogRecord`, `TdLogQuery`, `TdLogPage`.
 

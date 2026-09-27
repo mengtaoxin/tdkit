@@ -25,16 +25,16 @@ export function getLogConfig(): Readonly<LogConfigState> {
 }
 
 export function setRetainCount(value: number): void {
-  assertPositiveInteger("retainCount", value);
+  assertPositiveInteger('retainCount', value);
   state.retainCount = value;
 }
 
 export function setRetainDays(value: number): void {
-  assertPositiveInteger("retainDays", value);
+  assertPositiveInteger('retainDays', value);
   state.retainDays = value;
 }
 
 export function setMaxChars(value: number): void {
-  assertPositiveInteger("maxChars", value);
+  assertPositiveInteger('maxChars', value);
   state.maxChars = value;
 }
