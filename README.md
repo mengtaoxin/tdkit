@@ -1,6 +1,6 @@
 # tdkit
 
-Browser TypeScript library. Provides **TdLog** (structured logs in IndexedDB) and **TdSettingDict** (string settings in IndexedDB).
+Browser TypeScript library. Provides **TdLog** (structured logs in IndexedDB) and **TdSettingDict** (string settings in IndexedDB). Storage is backed by [Dexie](https://dexie.org).
 
 ## Install
 
@@ -41,7 +41,7 @@ await TdLog.info("app started");
 await TdLog.warn("slow request");
 await TdLog.error("request failed");
 
-const page = await TdLog.query({ keyword: "request", limit: 20 });
+const page = await TdLog.query({ keyword: "request", page: 1, pageSize: 20 });
 // page.total, page.records — newest first
 
 await TdLog.clean();

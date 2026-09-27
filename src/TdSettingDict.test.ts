@@ -1,43 +1,37 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { TdSettingDict } from "./TdSettingDict.js";
 
-const DB_NAME = "tdkit-setting";
+let keySeq = 0;
 
-function deleteSettingDb(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.deleteDatabase(DB_NAME);
-    request.onsuccess = () => resolve();
-    request.onerror = () =>
-      reject(request.error ?? new Error("Failed to delete IndexedDB"));
-    request.onblocked = () =>
-      reject(new Error("IndexedDB delete blocked"));
-  });
+function uniqueKey(name: string): string {
+  keySeq += 1;
+  return `${name}-${keySeq}`;
 }
 
 describe("TdSettingDict", () => {
-  beforeEach(async () => {
-    await deleteSettingDb();
-  });
-
   it("stores and reads a string value", async () => {
-    await TdSettingDict.set("color", "blue");
-    await expect(TdSettingDict.get("color")).resolves.toBe("blue");
+    const key = uniqueKey("color");
+    await TdSettingDict.set(key, "blue");
+    await expect(TdSettingDict.get(key)).resolves.toBe("blue");
   });
 
   it("returns undefined for a missing key", async () => {
-    await expect(TdSettingDict.get("missing")).resolves.toBeUndefined();
+    await expect(
+      TdSettingDict.get(uniqueKey("missing")),
+    ).resolves.toBeUndefined();
   });
 
   it("overwrites an existing value", async () => {
-    await TdSettingDict.set("color", "blue");
-    await TdSettingDict.set("color", "red");
-    await expect(TdSettingDict.get("color")).resolves.toBe("red");
+    const key = uniqueKey("color");
+    await TdSettingDict.set(key, "blue");
+    await TdSettingDict.set(key, "red");
+    await expect(TdSettingDict.get(key)).resolves.toBe("red");
   });
 
   it("rejects a non-string value", async () => {
     await expect(
       // @ts-expect-error intentional invalid value
-      TdSettingDict.set("color", 1),
+      TdSettingDict.set(uniqueKey("color"), 1),
     ).rejects.toBeInstanceOf(TypeError);
   });
 
