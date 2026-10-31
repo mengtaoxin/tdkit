@@ -69,7 +69,7 @@ Types: `TdLogLevel`, `TdLogRecord`, `TdLogQuery`, `TdLogPage`.
 
 ```bash
 npm install
-npm test
+npm run verify
 npm run build
 ```
 
