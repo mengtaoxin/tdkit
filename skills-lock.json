@@ -1,4 +1,11 @@
 {
   "version": 1,
-  "skills": {}
+  "skills": {
+    "test-driven-development": {
+      "source": "./.agents/skills/test-driven-development",
+      "sourceType": "local",
+      "computedHash": "e665b11fc0eaf0735c65c6beed0943e2bb16b9edbd8966589b7bc5bd0e5bd0ec",
+      "installMode": "copy"
+    }
+  }
 }

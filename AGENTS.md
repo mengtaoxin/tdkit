@@ -1,5 +1,5 @@
 # Agent Guidelines
 
-Follow the rules in [docs/kit-rules.md](docs/kit-rules.md) when adding or changing features provided by this kit.
+Follow [docs/change-code-steps.md](docs/change-code-steps.md) when adding or changing code in this kit.
 
-When finishing a code change, run `npm run format` if the tree needs formatting, then `npm run verify`.
+Kit invariants (definition separate from implementation; unit tests against the public contract): [docs/kit-rules.md](docs/kit-rules.md).
